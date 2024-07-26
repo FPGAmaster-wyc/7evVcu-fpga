@@ -1,4 +1,4 @@
-# Product Version: Vivado v2019.2 (64-bit)
+# Product Version: Vivado v2021.2 (64-bit)
 
 set projName 7ev_Vcu
 set part xczu7ev-ffvc1156-2-i	
@@ -19,30 +19,27 @@ proc run_create {} {
 
     add_files -fileset [current_fileset] -force -norecurse {
         ../src/asyncFifo.v
-        ../src/axi_full_core.v
-        ../src/axis2ddr_top.v
-        ../src/axis2fifo.v
-		../src/design_1_wrapper.v
-        ../src/fifo.v
+        ../src/ctrl_axi_lite_slave.v
+        ../src/datamover_ctrl.v
         ../src/fifo1.v
         ../src/fifomem.v
-        ../src/mem_1r1w_2000x509.v
+		../src/frame_freq_ctrl.v
+		../src/gray_scale_data.v
+		../src/mem_1r1w_2000x509.v
         ../src/mem_tmp_val_uram.v
         ../src/par_2_ser.v
+	../src/system_wrapper.v
 		../src/pixl_receive.v
 		../src/pixl_top.v
 		../src/pp_pix.v
 		../src/pp_ram2_r_w_ctrl.v
 		../src/proc_top_uram.v
-		../src/Reg_Controller.v
+		../src/reg_read_write.v
 		../src/rptr_empty.v
 		../src/save_image_1280x1024.v
 		../src/save_image_1280x1024_mul_mul_17s_12ns_29_1_1.v
 		../src/save_image_1280x1024_udiv_12s_8ns_12_16_1.v
-		../src/sfp_power_on_reset.v
-		../src/sim-axilite-s.v
 		../src/spi_config.v
-		../src/spikep_top.v
 		../src/sum_io_empty.v
 		../src/sum_io_empty_3_ram.v
 		../src/sum_io_empty_12.v
@@ -59,25 +56,23 @@ proc run_create {} {
         ../ip/axis_dwidth_converter_0/axis_dwidth_converter_0.xci
 		../ip/clk_wiz_1/clk_wiz_1.xci
 		../ip/fifo512bit_1k/fifo512bit_1k.xci
-		../ip/ila_1080/ila_1080.xci
+		../ip/ila_1280/ila_1280.xci
+		../ip/ila_addr/ila_addr.xci
 		../ip/ila_aurora/ila_aurora.xci
-		../ip/ila_ram/ila_ram.xci
-		../ip/ila_ram4/ila_ram4.xci
-		../ip/ila_sensor/ila_sensor.xci
-		../ip/ila_spike/ila_spike.xci
-		../ip/ila_syncfifo/ila_syncfifo.xci
-		../ip/vio_rst/vio_rst.xci
+		../ip/ila_cnt/ila_cnt.xci
+		../ip/ila_last/ila_last.xci
+		../ip/proc_sys_reset_0/proc_sys_reset_0.xci
+		../ip/vio_aurora/vio_aurora.xci
+		../ip/vio_start/vio_start.xci
     }
 
     add_files -fileset [current_fileset -constrset] -force -norecurse {
         ../src/top.xdc
     }
-	
-	set_property ip_repo_paths "../ip/axi_lite_4reg_1.0" [current_project]
-	update_ip_catalog
 
     source {../bd/bd.tcl}
 
+    # set_property CONFIG.FREQ_HZ 266664001 [get_bd_intf_pins /datamover_ctrl_0/M_AXIS_STS]
     set_property top $top [current_fileset]
     set_property generic DEBUG=TRUE [current_fileset]
 

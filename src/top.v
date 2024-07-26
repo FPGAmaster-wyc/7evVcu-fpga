@@ -1,5 +1,23 @@
-`timescale 1ns / 1ns
-
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2024/07/11 11:21:53
+// Design Name: 
+// Module Name: top
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
 
 module top # (
   `ifdef SIMULATION_MODE
@@ -9,18 +27,16 @@ module top # (
   `endif
   parameter DATA_WIDTH     = 18,
     parameter BURST_LENGTH   = 4,
-    parameter APP_DATA_WIDTH = 72, 
+    parameter APP_DATA_WIDTH = 72,
     parameter APP_ADDR_WIDTH = 21
 ) (
-    //  input                  sys_rst // Common port for all controllers
-    //  ,
     input				 GCLK
     //sensor lvds
     //lvds
     ,input	[20:0]	lvds_p1
     ,input	[20:0]	lvds_n1
     ,input			clk_p11
-    ,input			clk_n11 
+    ,input			clk_n11
 
     ,input	[20:0]	lvds_p2
     ,input	[20:0]	lvds_n2
@@ -35,15 +51,15 @@ module top # (
     ,input	[20:0]	lvds_p4
     ,input	[20:0]	lvds_n4
     ,input			clk_p41
-    ,input			clk_n41
-
+    ,input			clk_n41    
+    
     //sensor spi
     ,output PDLU_EN
     ,output PDLU_pixel_RSTN
     ,output PDLU_RSTN
     ,output PDRU_Mclk_20M
 
-    ,output    wire          clk_spi // spi�ڲ�ʱ��
+    ,output    wire          clk_spi // spi??????
     ,output    wire          mosi
     // ,input    wire          miso
     ,output wire 			cs1
@@ -70,8 +86,9 @@ module top # (
     //  //   input F_QSFP1_MODPRSL, 
     //  //   input F_QSFP1_MODSELL
     //  //uart
-
-);
+    // ,input  UART_0_0_rxd
+    // ,output UART_0_0_txd    
+    );
 
 wire GCLK_50M;
 
@@ -104,41 +121,16 @@ BUFG BUFG_inst (
             end
         end
     end
-    
-    // // reg probe_out0;
-    wire sys_rst;
 
-/*    vio_0 vio1 (
-      .clk(GCLK),                // input wire clk
-      .probe_out0(probe_out0)  // output wire [0 : 0] probe_out0
-    );*/
-    reg [23:0] rst_cnt;
-    always @ (posedge clk20m)begin
-        rst_cnt	<= rst_cnt + 1;
-    end    
-    // always @ (posedge clk20m)begin
-    //     if(rst_cnt[23] == 1)
-    //         probe_out0 <=1;
-    // end
-     
+    wire sys_rst;
     (* MARK_DEBUG="true" *)wire[119:0] AXI_DATA;
     (* MARK_DEBUG="true" *)wire       AXI_VALID;
     (* MARK_DEBUG="true" *)wire       AXI_READY;
     (* MARK_DEBUG="true" *)wire        AXI_USER;
     (* MARK_DEBUG="true" *)wire        AXI_LAST;
-
-//    assign AXI_READY = 1;
-
-wire  sys_locked;
-
-    // clk_wiz_0 clk_wiz_0 (
-        // .clk_out1   (sys_main_clk   ),
-        // .locked     (sys_locked), // output locked
-        // .clk_in1    (GCLK_50M      )
-    // );
-
+    wire  sys_locked;
+    
     assign rstn=sys_rst;
-
     wire clk10m    ;
     wire clk20m    ;
     wire clk100m   ;
@@ -149,18 +141,17 @@ wire  sys_locked;
     
     assign sys_rst = pll_locked;
     
-    clk_wiz_1 clk_wiz_1_inst(
-        .clk_out1(clk10m    ), // 10M
-        .clk_out2(clk20m    ), // 10M
-        .clk_out3(clk100m   ), // 100M
-        .clk_out4(clk200m   ), // 200M
-        .clk_out5(clk125m   ), // 125M
-        .clk_out6(clk250m   ), // 250M
-        // .reset(~rstn), // input reset
-        .locked(pll_locked), // output locked
-        .clk_in1(GCLK_50M)); // input clk_in1
-    //debug
-    //    assign sys_main_clk = clk200m;
+clk_wiz_1 clk_wiz_1_inst(
+    .clk_out1(clk10m    ),    // 10M
+    .clk_out2(clk20m    ),    // 10M
+    .clk_out3(clk100m   ),    // 100M
+    .clk_out4(clk200m   ),    // 200M
+    .clk_out5(clk125m   ),    // 125M
+    .clk_out6(clk250m   ),    // 250M
+    // .reset(~rstn),         // input reset
+    .locked(pll_locked),      // output locked
+    .clk_in1(GCLK_50M));      // input clk_in1
+
     reg [23:0] led_cnt;
     always @ (posedge clk20m)begin
         led_cnt	<= led_cnt + 1;
@@ -177,12 +168,10 @@ wire  sys_locked;
     else
         pixl_rstn_cnt	<= pixl_rstn_cnt + 1;
 
-
     assign PDLU_EN	= (pixl_rstn_cnt	<	20) ?	1'b0	:	1'b1;
     assign PDLU_RSTN	=(pixl_rstn_cnt	<	20) ?	1'b0	:	1'b1;
     assign PDLU_pixel_RSTN	=(pixl_rstn_cnt	<	2000) ?	1'b0	:	1'b1;
     assign PDRU_Mclk_20M	=clk20m;
-
     assign pixl_rstn	= (pixl_rstn_cnt	<	20000) ?	1'b0	:	1'b1;
 
     // assign PDRU_Mclk_20M	=(pixl_rstn_cnt	<	220100) ?	1'b0	:	clk20m;
@@ -192,7 +181,6 @@ wire  sys_locked;
     // assign PDLU_pixel_RSTN	=rstn;
     // assign PDRU_Mclk_20M	=clk20m;
     //************************************************************
-
     wire [511:0] pixl_data_out;
     wire 		pixl_data_out_en;
     wire out_user;
@@ -205,15 +193,12 @@ wire  sys_locked;
     (* mark_debug= "TRUE" *)wire [1023:0] AXIS_TDATA;
     (* mark_debug= "TRUE" *)wire AXIS_TVALID;
     (* mark_debug= "TRUE" *)wire AXIS_TREADY;
-
-// wire probe_out0;
-    // vio_rst vio_rst (
-      // .clk       (GCLK_50M   ),                // input wire clk
-      // .probe_out0(probe_out0 )  // output wire [0 : 0] probe_out0
-    // );
+    (* mark_debug= "TRUE" *)wire vio_channel_up_aurora;/////vio���Ƶ�
+    (* mark_debug= "TRUE" *)wire vio_AXIS_TREADY;      /////vio���Ƶ�ready��Ϊȥ����ڵĲ������������Ϲ����Ҫȥ��
+    wire        out_v_last;                            /////������֡�����źţ�����1024��(1023)�����������֡�������н����ź�ͬʱ����
 
     pixl_top u_pixl_top(
-        .rstn       ( rstn  &&	pixl_rstn &&    pll_locked/* && probe_out0*/),
+        .rstn       ( rstn  &&	pixl_rstn &&    pll_locked),
         // .rstn       ( rstn  &&	pixl_rstn && pll_locked && probe_out0),
         .clk10m     ( clk10m     ),
         .clk20m     ( clk20m     ),
@@ -250,14 +235,17 @@ wire  sys_locked;
         .cs4        ( cs4        ),
         .out_user   (out_user    ),
         .out_last   (out_last    ),
-        .out_1080_TDATA (out_1080_TDATA ),
-        .out_1080_TVALID(out_1080_TVALID),
-        .out_1080_TREADY(out_1080_TREADY),
+        .out_1080_TDATA (out_1080_TDATA ),      ////�㷨����
+        .out_1080_TVALID(out_1080_TVALID),  
+        .out_1080_TREADY(out_1080_TREADY),      
+        .out_v_last  (out_v_last        ),      ////������֡�����ź�
 
-        .AXIS_TDATA (     AXIS_TDATA           ),
+        .AXIS_TDATA (     AXIS_TDATA           ),   ///�������
         .AXIS_TVALID(     AXIS_TVALID          ),
         .AXIS_TREADY(     AXIS_TREADY         ),
         .aurora_ready(   channel_up_aurora    ),
+        // .AXIS_TREADY(     vio_AXIS_TREADY         ),
+        // .aurora_ready(   vio_channel_up_aurora    ),
         .probe_out0  (1)
     );
     assign AXI_VALID = out_1080_TVALID;
@@ -267,9 +255,8 @@ wire  sys_locked;
     out_1080_TDATA[8+:8],2'b0,out_1080_TDATA[8+:8],2'b0,out_1080_TDATA[8+:8],2'b0,
     out_1080_TDATA[0+:8],2'b0,out_1080_TDATA[0+:8],2'b0,out_1080_TDATA[0+:8],2'b0};
 
-    assign out_1080_TREADY = AXI_READY;   //jie ddr��
-
-    //assign out_1080_TREADY = 1;
+    // assign out_1080_TREADY = AXI_READY;   //jie ddr???
+    // assign out_1080_TREADY = 1'b1;   //
 
     assign AXI_USER = out_user;
     assign AXI_LAST = out_last;
@@ -297,19 +284,138 @@ wire  sys_locked;
     M_AXI_BUFF_DATA[8+:8],2'b0,M_AXI_BUFF_DATA[8+:8],2'b0,M_AXI_BUFF_DATA[8+:8],2'b0,
     M_AXI_BUFF_DATA[0+:8],2'b0,M_AXI_BUFF_DATA[0+:8],2'b0,M_AXI_BUFF_DATA[0+:8],2'b0};
 
-       design_1_wrapper block_design
-        (.Op2_0(rstn),
-         .S_AXIS_0_tdata(out_1080_TDATA),//֮ǰȷʵ�ǽ�DP��Ϊ������10bit��Ϣ������˿�λ������û���ˣ�4����һ��������32bit
-         .S_AXIS_0_tlast(AXI_LAST),
-         .S_AXIS_0_tready(AXI_READY),
-         .S_AXIS_0_tstrb(4'hF),
-         .S_AXIS_0_tuser(AXI_USER),
-         .S_AXIS_0_tvalid(AXI_VALID),
-         .S_AXIS_ACLK_0(clk250m)
-         );
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+wire reset;
+wire aresetn;
 
+proc_sys_reset_0 proc_sys_reset_0 (
+  .slowest_sync_clk(clk250m),         
+	.ext_reset_in(1'b0),               
+	.aux_reset_in(1'b0),               
+	.mb_debug_sys_rst(1'b0),          	
+	.dcm_locked(pll_locked),             
+	.mb_reset(),                       
+	.bus_struct_reset(),         
+	.peripheral_reset(reset),   
+	.interconnect_aresetn(),  
+	.peripheral_aresetn(aresetn)   
+	);
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// vio_aurora vio_aurora (
+  // .clk          (clk250m              ),                // input wire clk
+  // .probe_out0   (vio_AXIS_TREADY      ),  // output wire [0 : 0] probe_out0
+  // .probe_out1   (vio_channel_up_aurora)  // output wire [0 : 0] probe_out0
+// );
+
+assign vio_AXIS_TREADY = 1;
+assign vio_channel_up_aurora = 1;
+////////////////////////////////////////////////////////////////////////////
+wire AXIS_CLK;
+wire AXIS_RSTN;
+wire ccd_start;
+
+wire data_clk;
+wire h_last;
+wire v_last;
+wire tvalid;
+wire [31:0] tdata;
+
+wire [31:0] S_AXIS_tdata;
+wire [3:0] S_AXIS_tkeep;
+wire S_AXIS_tlast;
+wire S_AXIS_tready;
+wire S_AXIS_tvalid;
+
+wire [31:0] M_AXIS_tdata;
+wire [3:0] M_AXIS_tkeep;
+wire M_AXIS_tlast;
+wire M_AXIS_tready;
+wire M_AXIS_tvalid;
+
+wire [63:0] data_size;
+wire [63:0] ddr_address;
+wire start;
+wire mover_finish;
+wire [1:0] flag;
+
+// assign data_clk = AXIS_CLK;
+
+// gray_scale_data#(
+    // .SIM            (0              ),
+    // .SIM_FILE_DIR   ("././"         )
+    // )
+// gray_scale_data(
+    ///.data_clk       (data_clk       ),
+    // .data_clk       (clk250m        ),
+    // .h_last         (h_last         ),
+    // .v_last         (v_last         ),
+    // .tvalid         (tvalid         ),
+    // .tdata          (tdata          )
+    // ); 
+// assign S_AXIS_tkeep  = 4'b1111;
+// assign S_AXIS_tdata  = tdata;
+// assign S_AXIS_tlast  = v_last;
+// assign S_AXIS_tvalid = tvalid; 
+
+assign S_AXIS_tkeep  = 4'b1111;
+assign S_AXIS_tdata  = out_1080_TDATA;
+assign S_AXIS_tlast  = out_v_last;
+assign S_AXIS_tvalid = out_1080_TVALID;
+
+frame_freq_ctrl frame_freq_ctrl(
+    // .AXIS_CLK       (AXIS_CLK       ),
+    // .AXIS_RSTN      (AXIS_RSTN      ),
+    .AXIS_CLK       (clk250m        ),
+    .AXIS_RSTN      (aresetn        ),
+    //ccd_data
+    .S_AXIS_tdata   (S_AXIS_tdata   ),
+    .S_AXIS_tkeep   (S_AXIS_tkeep   ),
+    .S_AXIS_tlast   (S_AXIS_tlast   ),
+    .S_AXIS_tready  (out_1080_TREADY),       /////S_AXIS_tready
+    .S_AXIS_tvalid  (S_AXIS_tvalid  ),
+    //data_mover
+    .M_AXIS_tdata   (M_AXIS_tdata   ),
+    .M_AXIS_tkeep   (M_AXIS_tkeep   ),
+    .M_AXIS_tlast   (M_AXIS_tlast   ),
+    .M_AXIS_tready  (M_AXIS_tready  ),
+    .M_AXIS_tvalid  (M_AXIS_tvalid  ),
+    //ctrl
+    // .ccd_start      (ccd_start      ),
+    //
+    .data_size      (data_size      ),
+    .ddr_address    (ddr_address    ),
+    .start          (start          ),
+    //intr
+    .mover_finish   (mover_finish   ),
+    .flag           (flag           )
+    );
+
+system_wrapper system_wrapper(
+    .S_AXIS_0_tdata (M_AXIS_tdata   ),
+    .S_AXIS_0_tkeep (M_AXIS_tkeep   ),
+    .S_AXIS_0_tlast (M_AXIS_tlast   ),
+    .S_AXIS_0_tready(M_AXIS_tready  ),
+    .S_AXIS_0_tvalid(M_AXIS_tvalid  ),
+    // .axis_aclk      (AXIS_CLK       ),
+    // .axis_aresetn   (AXIS_RSTN      ),
+    .axis_aclk      (clk250m        ),
+    .axis_aresetn   (aresetn       ),
+    .data_size_0    (data_size      ),
+    .ddr_address_0  (ddr_address    ),
+    .start_0        (start          ),
+    .finish_0       (mover_finish   ),
+    .flag_0         (flag           )
+    // .dma_clk        (AXIS_CLK       ),
+    // .dma_rstn       (AXIS_RSTN      )
+    );
+
+// vio_start vio_start (
+    // .clk            (clk250m        ),
+    // .probe_out0     (ccd_start      )
+    // );
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
     //GT need
-
     //wire sys_main_clk; // 100Mhz
     wire gt_125M_clk; // norminal 125Mhz, actually 135Mhz
     wire sys_clk;
@@ -360,28 +466,9 @@ wire  sys_locked;
     (* mark_debug= "TRUE" *)wire tvalid_capture_user_clk;
     (* mark_debug= "TRUE" *)wire tready_capture_user_clk;
     (* mark_debug= "TRUE" *)wire [1023:0]tdata_capture_user_clk;
-  
-ila_aurora ila_aurora (
-	.clk    (user_clk_i           ), // input wire clk
-	.probe0 (channel_up_aurora    ), // input wire [0:0]  probe0  
-	.probe1 (lane_up_aurora       ), // input wire [0:0]  probe1
-	.probe2 (aurora_tx_ready      ), // input wire [0:0]  probe1
-	.probe3 (aurora_tx_valid      ), // input wire [0:0]  probe1
-	.probe4 (aurora_tx_data       ), // input wire [255:0]  probe1
-	.probe5 (aurora_rx_data       ), // input wire [255:0]  probe1
-	.probe6 (aurora_rx_valid      ), // input wire [0:0]  probe1
-	.probe7 (aurora_rx_ready      ), // input wire [0:0]  probe1
-	.probe8 (Aurora_Tx_channel    ), // input wire [1:0]  probe1
-	.probe9 (Aurora_Tx_address    ),  // input wire [8:0]  probe1
-    
-	.probe10(tvalid_capture_user_clk    ), // input wire [0:0]  probe1
-	// .probe11(tready_capture_user_clk    ), // input wire [0:0]  probe1
-	.probe11(tx_data256                 ) // input wire [255:0]  probe1
-	// .probe12(tdata_capture_user_clk     ), // input wire [1023:0]  probe1
-	// .probe13(gt_powergood               ) // input wire [3:0]  probe1
-);
-    
-    // //100Mhz 1024bit -> 200Mhz 1024bit
+
+
+    /////100Mhz 1024bit -> 200Mhz 1024bit
     axis_clock_converter_0 u_axis_clock_converted_0 (
         .s_axis_aresetn (rstn                   ), // input wire s_axis_aresetn
         .m_axis_aresetn (user_clk_resetn        ), // input wire m_axis_aresetn
@@ -395,7 +482,7 @@ ila_aurora ila_aurora (
         .m_axis_tdata   (tdata_capture_user_clk ) // output wire [1023 : 0] m_axis_tdata
     );////156.25  10.8/6 = 
 
-    // //200Mhz 1024bit -> 200Mhz 256bit
+    ////////200Mhz 1024bit -> 200Mhz 256bit
     axis_dwidth_converter_0 u_axis_dwidth_converter_0 (
         .aclk           (user_clk_i             ),
         .aresetn        (user_clk_resetn        ),
@@ -555,9 +642,4 @@ ila_aurora ila_aurora (
     assign user_clk_resetn = user_clk_resetn_sync[1];
 ////
 
-
 endmodule
-
-
-
-

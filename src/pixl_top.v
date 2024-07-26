@@ -44,6 +44,8 @@ module pixl_top (
   input AXIS_TREADY,
   input aurora_ready,
   input probe_out0
+  
+  ,output out_v_last
 );
 
 parameter VA = 500;
@@ -115,9 +117,6 @@ wire [2:0] unused_wre3;
 (* mark_debug="true" *)reg err_fifo1_full;
 (* mark_debug="true" *)reg err_fifo2_full;
 (* mark_debug="true" *)reg err_fifo3_full;
-//////////////////////////////////////////////////////////
-
-
 //////////////////////////////////////////////////////////
 always @(posedge clk125m or negedge rstn) begin
   if (!rstn) begin
@@ -257,30 +256,6 @@ fifo512bit_1k lvds0_fifo512bit_1k (
 //  .wr_rst_busy (),
 //  .rd_rst_busy ()
 );
-////////////////////////////////////////////////////////////////////////////////
-// reg [19:0] data0_to_fifo_20;
-
-// always@(posedge data0_to_fifo_clk) begin
-// data0_to_fifo_20 <= data0_to_fifo[ 19:  0];
-// end
-
-// ila_sensor ila_fifo_to(
-	// .clk   (data0_to_fifo_clk           ), // input wire clk
-	// .probe0(data0_to_fifo_20            ), //    20bit
-	// .probe1(fifo0_full                  ) //    1bit
-// );
-
-// reg [19:0] data0_from_fifo_20;
-
-// always@(posedge data0_from_fifo_clk) begin
-// data0_from_fifo_20 <= data0_from_fifo[ 19:  0];
-// end
-
-// ila_sensor ila_fifo_from(
-	// .clk   (data0_from_fifo_clk           ), // input wire clk
-	// .probe0(data0_from_fifo_20            ), //    20bit
-	// .probe1(fifo0_empty                   ) //    1bit
-// );
 ///////////////////////////////////////////////////////////////////////////////////
 fifo512bit_1k lvds1_fifo512bit_1k (
   .rst (~rstn),
@@ -402,13 +377,24 @@ wire write_en;
 assign data_in = data0_out;
 assign write_en = data0_out_en;
 
+wire [8:0] addr0;
+wire [8:0] addr1;
+wire [8:0] addr2;
+wire [8:0] addr3;
+
+assign addr0 = VA - data0_out[508:500];     ////��ַ��ת
+assign addr1 = VA - data1_out[508:500];     ////��ַ��ת
+assign addr2 = data2_out[508:500] - 1;     ////��ַ��ת
+assign addr3 = data3_out[508:500] - 1;     ////��ַ��ת
+
 proc_top_uram proc_sub0(
   // write fifo
   .clk100M_i        (clk125m),
   .clk100M_resetn_i (rstn),
   .capture_en_i     (write_en),
   .fifoFull_o       (),
-  .fifoDin_i        (data_in[508:0]),
+//  .fifoDin_i        (data_in[508:0]),
+  .fifoDin_i        ({addr0,reverse_bits(data0_out[499:0])}),           /// ��ַ��ת
   //read fifo
   .clk_200M         (clk250m),
   .rst_200M         (rstn),
@@ -427,7 +413,8 @@ proc_top_uram proc_sub1(
   .clk100M_resetn_i(rstn),
   .capture_en_i(data1_out_en),
   .fifoFull_o(),
-  .fifoDin_i(data1_out[508:0]),
+//  .fifoDin_i(data1_out[508:0]),
+ .fifoDin_i({addr1, data1_out[499:0]}),         ////��ַ+����
   //read fifo
   .clk_200M(clk250m),
   .rst_200M(rstn),
@@ -444,7 +431,8 @@ proc_top_uram proc_sub2(
   .clk100M_resetn_i(rstn),
   .capture_en_i(data2_out_en),
   .fifoFull_o(),
-  .fifoDin_i(data2_out[508:0]),
+  // .fifoDin_i(data2_out[508:0]),
+  .fifoDin_i({addr2,reverse_bits(data2_out[499:0])}),
   //read fifo
   .clk_200M(clk250m),
   .rst_200M(rstn),
@@ -461,7 +449,8 @@ proc_top_uram proc_sub3(
   .clk100M_resetn_i(rstn),
   .capture_en_i(data3_out_en),
   .fifoFull_o(),
-  .fifoDin_i(data3_out[508:0]),
+//  .fifoDin_i(data3_out[508:0]),
+  .fifoDin_i({addr3,data3_out[499:0]}),       ///����
   //read fifo
   .clk_200M(clk250m),
   .rst_200M(rstn),
@@ -484,8 +473,14 @@ parameter OUT_S = 3'd2;
 wire ap_done;
 reg  ap_start;
 reg [19:0] counter_datas;
-assign out_user = counter_datas == 20'd0;
-assign out_last = counter_datas != 20'd0 && (counter_datas + 1) % 320 == 0;
+assign out_user = counter_datas == 20'd0;   //ÿһ֡�ĵ�һ���ź�
+assign out_last = counter_datas != 20'd0 && (counter_datas + 1) % 320 == 0; //�н����źţ�1024��
+
+////////////////////////////////////////////////////////////////////////////////////////
+assign out_v_last = (counter_datas == 20'd327680);      ////֡�����ź�
+
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 always@(posedge clk250m )begin
   if (!rstn)begin
@@ -542,10 +537,10 @@ end
 
 genvar idx;
 for (idx = 0; idx < 50; idx=idx+1) begin
-    assign q_0_8bit[8*idx+:8] ={4'd0,query_data_0[4*idx+:4]};
-    assign q_1_8bit[8*idx+:8] ={4'd0,query_data_1[4*idx+:4]};
-    assign q_2_8bit[8*idx+:8] ={4'd0,query_data_2[4*idx+:4]};
-    assign q_3_8bit[8*idx+:8] ={4'd0,query_data_3[4*idx+:4]};
+    assign q_0_8bit[8*idx+:8] ={query_data_0[8*idx+:8]};
+    assign q_1_8bit[8*idx+:8] ={query_data_1[8*idx+:8]};
+    assign q_2_8bit[8*idx+:8] ={query_data_2[8*idx+:8]};
+    assign q_3_8bit[8*idx+:8] ={query_data_3[8*idx+:8]};
 end
 
 //save_image_1280x1024 saveimg(
@@ -582,7 +577,7 @@ save_image_1280x1024 saveimg(
         .ap_ready(),
         .talpha(8'd4),
 //        .talpha(8'd1),//
-        .window(8'd30),
+        .window(8'd50),
         .ram_a_address0(query_addr_0),
         .ram_a_ce0(query_en_0),
         .ram_a_q0(q_0_8bit),
@@ -614,14 +609,8 @@ always @(posedge clk250m ) begin
   end
 end
 
- ila_1080 ila_1080 (
-	 .clk   (clk250m         ), // input wire clk
-	 .probe0(out_1080_TDATA  ), // input wire [31:0]  probe0  
-	 .probe1(out_1080_TVALID ), // input wire [0:0]  probe1 
-	 .probe2(out_1080_TREADY ) // input wire [0:0]  probe2
-	 // .probe3(counter_datas   ) // input wire [19:0]  probe2
- );
-
+(* mark_debug="true" *)wire [8:0] data0_out_9bit;
+assign data0_out_9bit = data0_out[508:500];
 
 /*pp_control*/
 localparam IDLE = 2'd0;
@@ -874,6 +863,7 @@ assign pix_empty0 = /*pix_empty0_even|*/ pix_empty0_odd;
 assign pp_ram_full0 = /*pp_ram_full0_even |*/ pp_ram_full0_odd;
 assign wr_done0 = (data0_out_en&&(waddr0 == (VA - 1))) ? 1'b1 : 1'b0;
 assign waddr0 = data0_out[508:500] - 1;
+// assign waddr0 = data0_out[508:500];
 
 
 /*******************************************************HERE IS PPRAM 1 ************************************************************/
@@ -928,6 +918,7 @@ assign pix_empty1 = /*pix_empty1_even|*/ pix_empty1_odd;
 assign pp_ram_full1 = /*pp_ram_full1_even |*/ pp_ram_full1_odd;
 assign wr_done1 = (data1_out_en&&(waddr1 == (VA - 1))) ? 1'b1 : 1'b0;
 assign waddr1 = data1_out[508:500] - 1;
+// assign waddr1 = data1_out[508:500];
 
 
 /*******************************************************HERE IS PPRAM 2 ************************************************************/

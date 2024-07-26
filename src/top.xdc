@@ -1,9 +1,9 @@
 #****************************************RS422****************************************#
 ##dp A89
-set_property -dict {PACKAGE_PIN L10 IOSTANDARD LVCMOS18} [get_ports UART_0_0_txd]
+#set_property -dict {PACKAGE_PIN L10 IOSTANDARD LVCMOS18} [get_ports UART_0_0_txd]
 #set_property -dict {PACKAGE_PIN F31 IOSTANDARD LVCMOS18} [get_ports UART_0_0_txd]
 ##dp A70
-set_property -dict {PACKAGE_PIN M10 IOSTANDARD LVCMOS18} [get_ports UART_0_0_rxd]
+#set_property -dict {PACKAGE_PIN M10 IOSTANDARD LVCMOS18} [get_ports UART_0_0_rxd]
 #set_property -dict {PACKAGE_PIN F32 IOSTANDARD LVCMOS18} [get_ports UART_0_0_rxd]
 
 #50M
@@ -12,7 +12,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports GCLK]
 create_clock -period 20.000 -name GCLK [get_ports GCLK]
 
 set_property PACKAGE_PIN T8 [get_ports MGT117_P]
-create_clock -period 6.400 -name MGT117_P [get_nets MGT117_P]
+#create_clock -period 6.400 -name MGT117_P [get_nets MGT117_P]
 
 set_property PACKAGE_PIN N2 [get_ports {QSFP1_RX_P[0]}]
 set_property PACKAGE_PIN L2 [get_ports {QSFP1_RX_P[1]}]
@@ -100,12 +100,12 @@ set_property -dict {PACKAGE_PIN AJ21 IOSTANDARD LVDS} [get_ports clk_p21]
 ##########################################################################
 #PAR        lvds_p3
 set_property -dict {PACKAGE_PIN AP10 IOSTANDARD LVDS} [get_ports {lvds_p3[0]}]
-set_property -dict {PACKAGE_PIN AN9 IOSTANDARD LVDS} [get_ports {lvds_p3[1]}]
-set_property -dict {PACKAGE_PIN AM9 IOSTANDARD LVDS} [get_ports {lvds_p3[2]}]
+set_property -dict {PACKAGE_PIN AN9  IOSTANDARD LVDS} [get_ports {lvds_p3[1]}]
+set_property -dict {PACKAGE_PIN AM9  IOSTANDARD LVDS} [get_ports {lvds_p3[2]}]
 set_property -dict {PACKAGE_PIN AL11 IOSTANDARD LVDS} [get_ports {lvds_p3[3]}]
-set_property -dict {PACKAGE_PIN AK8 IOSTANDARD LVDS} [get_ports {lvds_p3[4]}]
-set_property -dict {PACKAGE_PIN AG9 IOSTANDARD LVDS} [get_ports {lvds_p3[5]}]
-set_property -dict {PACKAGE_PIN AF8 IOSTANDARD LVDS} [get_ports {lvds_p3[6]}]
+set_property -dict {PACKAGE_PIN AK8  IOSTANDARD LVDS} [get_ports {lvds_p3[4]}]
+set_property -dict {PACKAGE_PIN AG9  IOSTANDARD LVDS} [get_ports {lvds_p3[5]}]
+set_property -dict {PACKAGE_PIN AF8  IOSTANDARD LVDS} [get_ports {lvds_p3[6]}]
 set_property -dict {PACKAGE_PIN AF11 IOSTANDARD LVDS} [get_ports {lvds_p3[7]}]
 set_property -dict {PACKAGE_PIN AE12 IOSTANDARD LVDS} [get_ports {lvds_p3[8]}]
 set_property -dict {PACKAGE_PIN AC12 IOSTANDARD LVDS} [get_ports {lvds_p3[9]}]
@@ -227,11 +227,11 @@ set_false_path -from [get_clocks clk_p11] -to [get_clocks -of_objects [get_pins 
 set_false_path -from [get_clocks clk_p21] -to [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT4]]
 set_false_path -from [get_clocks clk_p41] -to [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT4]]
 set_false_path -from [get_clocks clk_pl_0] -to [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT5]]
-set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks GCLK]
-set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p11]
-set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p21]
-set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p31]
-set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p41]
+#set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks GCLK]
+#set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p11]
+#set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p21]
+#set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p31]
+#set_false_path -from [get_clocks -of_objects [get_pins aurora_64b66b_0_i/inst/clock_module_i/ultrascale_tx_userclk_1/gen_gtwiz_userclk_tx_main.bufg_gt_usrclk2_inst/O]] -to [get_clocks clk_p41]
 set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT1]] -to [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT4]]
 set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT1]] -to [get_clocks clk_p11]
 set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT1]] -to [get_clocks clk_p21]
@@ -244,6 +244,10 @@ set_false_path -from [get_clocks clk_pl_0] -to [get_clocks -of_objects [get_pins
 
 
 
+set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
+set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
+set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
+connect_debug_port dbg_hub/clk [get_nets GCLK]
 
 
 ###################
@@ -361,9 +365,9 @@ set_property DIFF_TERM_ADV TERM_100 [get_ports clk_p11]
 set_property DIFF_TERM_ADV TERM_100 [get_ports clk_n11]
 
 
+set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT5]] -to [get_clocks clk_pl_1]
 
-set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
-set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
-set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
-set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
-connect_debug_port dbg_hub/clk [get_nets GCLK]
+set_false_path -from [get_clocks clk_pl_1] -to [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT5]]
+
+set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_1_inst/inst/mmcme4_adv_inst/CLKOUT5]] -to [get_clocks clk_pl_0]
+
